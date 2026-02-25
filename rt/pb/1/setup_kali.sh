@@ -9,6 +9,9 @@
 
 # --- CONFIGURAÇÕES GLOBAIS --- 
 ARQUIVO_LOG="setup_log.txt"
+USUARIO_LAB="aluno_lab"
+GRUPO_LAB="lab_group"
+SENHA_PADRAO="kali123"
 
 # Esse código limpar o log antigo se ele existir, para começar do zero
 > "$ARQUIVO_LOG"

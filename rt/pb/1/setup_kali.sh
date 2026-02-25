@@ -20,7 +20,7 @@ SENHA_PADRAO="kali123"
 log_msg() {
   local mensagem="$1"
   local timestamp=$(date "+%Y-%m-%d %H:%M:%S")
-  echo "[$timestamp] $mensagem | tee -a $ARQUIVO_LOG"
+  echo "[$timestamp] $mensagem" | tee -a $ARQUIVO_LOG"
 }
 
 print_header() {

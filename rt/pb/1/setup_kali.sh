@@ -13,18 +13,21 @@ USUARIO_LAB="aluno_lab"
 GRUPO_LAB="lab_group"
 SENHA_PADRAO="kali123"
 
-# Esse código limpar o log antigo se ele existir, para começar do zero
+# Esse comando limpa o log antigo se ele existir, para começar do zero
 > "$ARQUIVO_LOG"
 
 # --- FUNÇÕES AUXILIARES ---
+
 log_msg() {
   local mensagem="$1"
   local timestamp=$(date "+%Y-%m-%d %H:%M:%S")
-  echo "[$timestamp] $mensagem" | tee -a $ARQUIVO_LOG"
+  # CORREÇÃO AQUI: O pipe | tee fica FORA das aspas
+  echo "[$timestamp] $mensagem" | tee -a "$ARQUIVO_LOG"
 }
 
 print_header() {
     local titulo="$1"
+    # Aqui estava correto, o tee já estava fora das aspas
     echo "" | tee -a "$ARQUIVO_LOG"
     echo "============================================================" | tee -a "$ARQUIVO_LOG"
     echo "   $titulo" | tee -a "$ARQUIVO_LOG"
@@ -32,13 +35,11 @@ print_header() {
 }
 
 check_status() {
-    # $? é onde eu pego o status do último comando executado
-    # -eq é o operador de igualdade
+    # $? captura o status do último comando (0 = sucesso, diferente de 0 = erro)
     if [ $? -eq 0 ]; then
         log_msg "[SUCESSO] Etapa concluída."
     else
         log_msg "[ERRO] Houve uma falha na etapa anterior."
-        # Em scripts críticos, poderíamos usar 'exit 1' aqui para parar tudo.
     fi
 }
 
@@ -65,11 +66,10 @@ log_msg "Informações salvas em 'sistema_info.txt'."
 # --- 2. Atualização de Repositórios e Pacotes ---
 print_header "2. Atualizando o Sistema (Isso pode demorar)"
 log_msg "Executando apt update..."
-# Redirecionamos stdout e stderr para o log específico
+# Redirecionamos stdout (saída padrão) e stderr (erros) para o log
 sudo apt-get update > update_log.txt 2>&1
 
 log_msg "Executando apt full-upgrade..."
-# DEBIAN_FRONTEND=noninteractive evita que janelas pop-up travem o script
 sudo DEBIAN_FRONTEND=noninteractive apt-get full-upgrade -y >> update_log.txt 2>&1
 check_status
 log_msg "Logs de atualização salvos em 'update_log.txt'."
@@ -122,9 +122,7 @@ fi
 
 # Criar Usuário
 if ! id -u "$USUARIO_LAB" > /dev/null 2>&1; then
-    # -m cria home, -s define shell, -G adiciona ao grupo secundário
     sudo useradd -m -s /bin/bash -G "$GRUPO_LAB" "$USUARIO_LAB"
-    # Define a senha (necessário para logar)
     echo "$USUARIO_LAB:$SENHA_PADRAO" | sudo chpasswd
     log_msg "Usuário '$USUARIO_LAB' criado com senha padrão."
 else
@@ -151,10 +149,9 @@ log_msg "Lista de ferramentas salva em 'tools_installed.txt'."
 # --- 7. Estrutura de Diretórios ---
 print_header "7. Criando Estrutura de Diretórios"
 
-# Diretório /opt (Requer root para criar, mas vamos dar permissão ao usuário atual)
+# Diretório /opt
 if [ ! -d "/opt/labtools" ]; then
     sudo mkdir -p /opt/labtools
-    # Muda o dono para o usuário que está rodando o script ($USER)
     sudo chown "$USER":"$USER" /opt/labtools
     chmod 755 /opt/labtools
     log_msg "Diretório /opt/labtools criado."
@@ -162,14 +159,13 @@ else
     log_msg "Diretório /opt/labtools já existe."
 fi
 
-# Diretório na Home do usuário
+# Diretório na Home
 mkdir -p ~/lab_workspace
 log_msg "Diretório ~/lab_workspace criado."
 
 
 # --- 8. A Flag Final ---
 print_header "8. Gerando a Flag de Conclusão"
-# Usamos 'sudo tee' para conseguir escrever em /etc/
 echo "Kali Linux pronto para atividades de laboratório autorizado" | sudo tee /etc/flag_kali.txt > /dev/null
 
 if [ -f "/etc/flag_kali.txt" ]; then

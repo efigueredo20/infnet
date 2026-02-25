@@ -7,7 +7,7 @@
 # Data: 25/02/2026
 # ==============================================================================
 
-# --- CONFIGURAÇÕES GLOBAIS --- 
+# --- CONFIGURAÇÕES GLOBAIS ---
 ARQUIVO_LOG="setup_log.txt"
 USUARIO_LAB="aluno_lab"
 GRUPO_LAB="lab_group"
@@ -19,15 +19,13 @@ SENHA_PADRAO="kali123"
 # --- FUNÇÕES AUXILIARES ---
 
 log_msg() {
-  local mensagem="$1"
-  local timestamp=$(date "+%Y-%m-%d %H:%M:%S")
-  # CORREÇÃO AQUI: O pipe | tee fica FORA das aspas
-  echo "[$timestamp] $mensagem" | tee -a "$ARQUIVO_LOG"
+    local mensagem="$1"
+    local timestamp=$(date "+%Y-%m-%d %H:%M:%S")
+    echo "[$timestamp] $mensagem" | tee -a "$ARQUIVO_LOG"
 }
 
 print_header() {
     local titulo="$1"
-    # Aqui estava correto, o tee já estava fora das aspas
     echo "" | tee -a "$ARQUIVO_LOG"
     echo "============================================================" | tee -a "$ARQUIVO_LOG"
     echo "   $titulo" | tee -a "$ARQUIVO_LOG"
